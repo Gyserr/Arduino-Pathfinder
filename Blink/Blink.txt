@@ -1,1 +1,1 @@
-Turn an LED on and off. 
+Mtaching LED light blink rate to an avergae human heart rate (About 60 beats per minute)
