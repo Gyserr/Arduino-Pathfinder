@@ -1,57 +1,52 @@
-#define LED_1_PIN 12
-#define LED_2_PIN 10
-#define LED_3_PIN 11
-#define POTENTIOMETER_PIN A2
-unsigned long previousTimeLED1Blink = millis();
-unsigned long timeIntervalLED1Blink = 470;
+#define LED_PIN 12
+#define GREEN_LED_PIN 11
+#define YELLOW_LED_PIN 10
+#define POTENTIOMETER A2
+#define push_button 2
+unsigned long previousTime = 0;
 
-unsigned long previousTimeLED2Blink = millis();
-unsigned long timeIntervalLED2Blink = 1300;
-
-
-int LED1State = LOW;
-int LED2State = LOW;
-
-
-
-
+int LEDState = LOW;
+int data;
+int LED_brightness;
+bool Button_state;
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
-  pinMode(LED_1_PIN, OUTPUT);
-  pinMode(LED_2_PIN, OUTPUT);
-  pinMode(LED_3_PIN, OUTPUT);
-  pinMode(POTENTIOMETER_PIN, INPUT);
-  Serial.println(previousTimeLED1Blink);
-  Serial.println(previousTimeLED2Blink);
-
+  pinMode(LED_PIN, OUTPUT);
+  pinMode(GREEN_LED_PIN, OUTPUT);
+  pinMode(YELLOW_LED_PIN, OUTPUT);
+  pinMode(POTENTIOMETER, INPUT);
+  pinMode(push_button, INPUT);
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
+  Button_state = digitalRead(push_button);
+  if(Button_state){
+    digitalWrite(GREEN_LED_PIN, Button_state);
+  }
+  else{
+   digitalWrite(GREEN_LED_PIN, LOW);
+  } 
+  LED_brightness = analogRead(A2) / 4;
+  analogWrite(YELLOW_LED_PIN, LED_brightness);
   unsigned long timeNow = millis();
-  if (timeNow - previousTimeLED1Blink  > timeIntervalLED1Blink){
-    if (LED1State == LOW){
-      LED1State = HIGH;
-    }
-    else {
-      LED1State = LOW;
-    }
-    digitalWrite(LED_1_PIN, LED1State);
-    previousTimeLED1Blink += timeIntervalLED1Blink;
+  if (Serial.available() > 0){
+    data = Serial.parseInt();
   }
-  if (timeNow - previousTimeLED2Blink > timeIntervalLED2Blink){
-    if(LED2State == LOW){
-      LED2State = HIGH;
+  if((data >= 100) && (data <= 4000)){
+    if ((timeNow - previousTime) >= data){
+      if (LEDState == HIGH){
+          LEDState = LOW;
+          }
+      else{
+          LEDState = HIGH;
+        }
+        digitalWrite(LED_PIN, LEDState);
+        previousTime = timeNow;
+      }
+      
     }
-    else{
-      LED2State = LOW;
-    }
-    digitalWrite(LED_2_PIN, LED2State);
-    previousTimeLED2Blink += timeIntervalLED2Blink;
-  }
-  int brightness = analogRead(POTENTIOMETER_PIN);
-  analogWrite(LED_3_PIN, (brightness/4));
-
-}
-
+  } 
+// Set LED2 (pin 11) brightness from potentiometer
+// Power on led 3 when button is press pressed
